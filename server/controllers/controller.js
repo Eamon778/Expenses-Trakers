@@ -8,11 +8,9 @@ const sendData = async (req, res) => {
 const addExpenses = async (req, res) => {
     const body = req.body
     const { id } = req.user
-    const _id = id;
     
     try {
-        const userData = await User.findByIdAndUpdate(_id, { $push: { expenses: body } }, { new: true })
-        console.log(userData)
+        const userData = await User.findByIdAndUpdate(_id=id, { $push: { expenses: body } }, { new: true })
         res.status(200).json({ success: true, message: 'Expense added successfully', data: userData?.expenses })
     } catch (error) {
         res.status(500).json({ success: false, message: 'Something went wrong', error })
@@ -20,11 +18,25 @@ const addExpenses = async (req, res) => {
 }
 
 const fetchExpenses = async (req, res) => {
-    res.status(200).json({ message: 'Hello from the server!' })
+    const { id } = req.user
+
+    try {
+        const userData = await User.findById(_id=id).select('expenses')
+        res.status(200).json({ success: true, data: userData?.expenses })
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Something went wrong', error })
+    }
 }
 
 const deleteExpenses = async (req, res) => {
-    res.status(200).json({ message: 'Hello from the server!' })
+    const { id } = req.user
+    const expenseId = req.params.id
+    try {
+        const userData = await User.findByIdAndUpdate(id, { $pull: { expenses: { _id: expenseId } } }, { new: true })
+        res.status(200).json({ success: true, message: 'Expense deleted successfully', data: userData?.expenses })
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Something went wrong', error })
+    }
 }
 
 module.exports = { addExpenses, fetchExpenses, deleteExpenses, sendData }
